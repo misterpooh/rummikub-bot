@@ -1,4 +1,5 @@
 from enum import Enum
+import os
 
 class Tiles(Enum):
     BLACK_ONE = 101
@@ -58,7 +59,7 @@ class Tiles(Enum):
 
     @property
     def image(self) -> "Image":
-        return "%s%d" % ('/t/', getattr(Image, self.name))
+        return os.path.abspath('rummikub-bot/t/' + getattr(Image, self.name).value)
 
 class Image(Enum):
     BLACK_ONE = "1_bk_l.png"
