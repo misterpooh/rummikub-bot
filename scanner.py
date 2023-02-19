@@ -16,7 +16,31 @@ class Scanner:
 
     def __init__(self):
         self.game_top_left = None
-        self.game_top_left = self.locate_game_window()
+        self.game_top_left = self.locate_game_window() # (x,y)
+        self.initialized = False
+
+    def locate_player(self, height=GAME_HEIGHT, width=GAME_WIDTH):
+        if not self.game_top_left:
+            self.locate_game_window()
+        player_board_loc = pyautogui.locateOnScreen(Tiles.PLAYER_TILE.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        return (player_board_loc.left, player_board_loc.top)
+    
+    def locate_board(self):
+        if not self.game_top_left:
+            self.locate_game_window()
+        game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        return (game_board_loc.left, game_board_loc.top)
+
+    def is_player_turn(self):
+        if not self.game_top_left:
+            self.locate_game_window()
+        game_board_loc = pyautogui.locateOnScreen(Tiles.TURN.image, confidence=1, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]))
+        if game_board_loc: #TODO: Check color and return true if orange
+            print("True")
+            return True
+        print("False")
+        return False
+    
 
     def locate_all(self, path, confidence=0.9, distance=10 , top_left=None):
         distance = pow(distance, 2)
@@ -54,6 +78,7 @@ class Scanner:
         print("1")
         for i in self.locate_all(Tiles.BLACK_ONE.image, confidence=0.9, top_left=self.game_top_left):
             print(i)
+
         print("2")
         for i in self.locate_all(Tiles.BLACK_TWO.image, confidence=0.9, top_left=self.game_top_left):
             print(i)
@@ -221,8 +246,7 @@ class Scanner:
         for i in self.locate_all(Tiles.ORANGE_THIRTEEN.image, confidence=0.9, top_left=self.game_top_left):
             print(i)
         time_elapsed = datetime.datetime.now() - start_time
-        print("Last ran: " + str(
-            datetime.datetime.now()) + " | Completed in " + str(
+        print("Completed in " + str(
             time_elapsed))
     def print_mouse_pos():
         currentMouseX, currentMouseY = pyautogui.position() # Get the XY position of the mouse.
@@ -232,6 +256,6 @@ class Scanner:
 #locate_game_window()
 scanner = Scanner()
 scanner.scan_all_tiles()
-print("Second scan")
-scanner.scan_all_tiles()
-
+#print("Second scan")
+#scanner.scan_all_tiles()
+#scanner.is_player_turn()

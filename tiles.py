@@ -56,7 +56,13 @@ class Tiles(Enum):
     ORANGE_ELEVEN = 411
     ORANGE_TWELVE = 412
     ORANGE_THIRTEEN = 413
+    #  Game recognition
     GAME_CORNER = 500
+    TURN = 501
+    PLAYER_TILE = 502
+    BOARD_TILE = 503
+    TAKE_CARD = 504
+    END_TURN = 505
 
     @property
     def image(self) -> "Image":
@@ -118,3 +124,8 @@ class Image(Enum):
     ORANGE_TWELVE = "12_oe_l.png"
     ORANGE_THIRTEEN = "13_oe_l.png"
     GAME_CORNER = "game_corner.png"
+    TURN = "turn.png"
+    PLAYER_TILE = "player_tile.png"
+    BOARD_TILE = "board_tile.png"
+    TAKE_CARD = "take_card.png"
+    END_TURN = "end_turn.png"
