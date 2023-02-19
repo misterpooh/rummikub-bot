@@ -22,23 +22,29 @@ class Scanner:
     def locate_player(self, height=GAME_HEIGHT, width=GAME_WIDTH):
         if not self.game_top_left:
             self.locate_game_window()
-        player_board_loc = pyautogui.locateOnScreen(Tiles.PLAYER_TILE.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        player_board_loc = pyautogui.locateOnScreen(Tiles.PLAYER_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]))
         return (player_board_loc.left, player_board_loc.top)
     
     def locate_board(self):
         if not self.game_top_left:
             self.locate_game_window()
-        game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         return (game_board_loc.left, game_board_loc.top)
 
     def is_player_turn(self):
         if not self.game_top_left:
             self.locate_game_window()
-        game_board_loc = pyautogui.locateOnScreen(Tiles.TURN.image, confidence=1, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]))
-        if game_board_loc: #TODO: Check color and return true if orange
-            print("True")
-            return True
+        turn_loc = pyautogui.locateOnScreen(Tiles.TURN.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        if turn_loc: #TODO: Check color and return true if orange
+            cross_button = pyautogui.center(turn_loc)
+            print(cross_button)
+            print(cross_button.x)
+            print(cross_button.y)
+            if pyautogui.pixelMatchesColor(int(cross_button.x), int(cross_button.y), (255, 151, 40)):
+                print("True")
+                return True
         print("False")
+        #print(pyautogui.pixel(int(cross_button.x), int(cross_button.y)))
         return False
     
 
@@ -248,14 +254,17 @@ class Scanner:
         time_elapsed = datetime.datetime.now() - start_time
         print("Completed in " + str(
             time_elapsed))
-    def print_mouse_pos():
-        currentMouseX, currentMouseY = pyautogui.position() # Get the XY position of the mouse.
-        print("x:" + currentMouseX)
-        print("y:" + currentMouseY)
 
 #locate_game_window()
 scanner = Scanner()
 scanner.scan_all_tiles()
 #print("Second scan")
 #scanner.scan_all_tiles()
-#scanner.is_player_turn()
+scanner.is_player_turn()
+#print(scanner.locate_board())
+#print(scanner.locate_player())
+#print_mouse_pos()
+def print_mouse_pos():
+    currentMouseX, currentMouseY = pyautogui.position() # Get the XY position of the mouse.
+    print(currentMouseX)
+    print(currentMouseY)
