@@ -56,10 +56,11 @@ class Tiles(Enum):
     ORANGE_ELEVEN = 411
     ORANGE_TWELVE = 412
     ORANGE_THIRTEEN = 413
+    GAME_CORNER = 500
 
     @property
     def image(self) -> "Image":
-        return os.path.abspath('rummikub-bot/t/' + getattr(Image, self.name).value)
+        return os.path.abspath('t/' + getattr(Image, self.name).value)
 
 class Image(Enum):
     BLACK_ONE = "1_bk_l.png"
@@ -116,3 +117,4 @@ class Image(Enum):
     ORANGE_ELEVEN = "11_oe_l.png"
     ORANGE_TWELVE = "12_oe_l.png"
     ORANGE_THIRTEEN = "13_oe_l.png"
+    GAME_CORNER = "game_corner.png"
