@@ -88,10 +88,15 @@ class Scanner:
         board_y = self.board_top_left[1]
         player_x = self.player_top_left[0]
         player_y = self.player_top_left[1]
-        self.scan_all_tiles(loc=tuple((board_x, board_y, self.GAME_WIDTH - board_x + self.game_top_left[0], player_y - board_y)))
+        self.scan_all_tiles(loc=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
         return
     
     def scan_player_tiles(self):
+        if not self.player_top_left:
+            self.player_top_left = self.player_top_left()
+        player_x = self.player_top_left[0]
+        player_y = self.player_top_left[1]
+        self.scan_all_tiles(loc=tuple((player_x, player_y, self.GAME_WIDTH - (player_x - self.game_top_left[0]), self.GAME_HEIGHT - (player_y - self.game_top_left[1]))))
         return
     
     def scan_all_tiles(self, loc=None):
