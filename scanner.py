@@ -13,7 +13,7 @@ class Scanner:
     """
     GAME_WIDTH = 900
     GAME_HEIGHT = 506
-
+    COLORS = ["black", "blue", "red", "orange"]
     def __init__(self):
         self.game_top_left = None
         self.game_top_left = self.locate_game_window() # (x,y)
@@ -23,8 +23,8 @@ class Scanner:
         self.board_tiles = {"joker": []}
         self.player_tiles = {"joker": []}
         for i in range(1, 14):
-            self.board_tiles[i] = []
-            self.player_tiles[i] = []
+            self.board_tiles[i] = {"black":[], "blue":[], "red":[], "orange":[]}
+            self.player_tiles[i] = {"black":[], "blue":[], "red":[], "orange":[]}
 
     def locate_player(self, height=GAME_HEIGHT, width=GAME_WIDTH):
         if not self.game_top_left:
@@ -51,9 +51,6 @@ class Scanner:
         turn_loc = pyautogui.locateOnScreen(Tiles.TURN.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         if turn_loc: 
             cross_button = pyautogui.center(turn_loc)
-            print(cross_button)
-            print(cross_button.x)
-            print(cross_button.y)
             if pyautogui.pixelMatchesColor(int(cross_button.x), int(cross_button.y), (255, 151, 40)):
                 print("True")
                 return True
@@ -95,213 +92,56 @@ class Scanner:
         if not self.board_top_left:
             self.board_top_left = self.locate_board()
         if not self.player_top_left:
-            self.player_top_left = self.player_top_left()
+            self.player_top_left = self.locate_player()
         board_x = self.board_top_left[0]
         board_y = self.board_top_left[1]
         player_x = self.player_top_left[0]
         player_y = self.player_top_left[1]
-        self.scan_all_tiles(loc=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
-        return
+        self.scan_all_tiles(self.board_tiles,loc=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
     
     def scan_player_tiles(self):
         if not self.player_top_left:
-            self.player_top_left = self.player_top_left()
+            self.player_top_left = self.locate_player()
         player_x = self.player_top_left[0]
         player_y = self.player_top_left[1]
-        self.scan_all_tiles(loc=tuple((player_x, player_y, self.GAME_WIDTH - (player_x - self.game_top_left[0]), self.GAME_HEIGHT - (player_y - self.game_top_left[1]))))
-        return
+        self.scan_all_tiles(self.player_tiles, loc=tuple((player_x, player_y, self.GAME_WIDTH - (player_x - self.game_top_left[0]), self.GAME_HEIGHT - (player_y - self.game_top_left[1]))))
     
-    def scan_all_tiles(self, loc=None):
+    def scan_all_tiles(self, storage, loc=None):
+        #TODO: scan speed optimization scan entire game once and sort/store into board_tiles
+        # and player_tiles based on x,y position (instead of scanning individually twice)
         self.locate_game_window()
         if not loc:
             loc = self.game_top_left
         start_time = datetime.datetime.now()
-        # TODO: store all the tiles and positions
         self.click_sort777()
-        print("Scanning Black")
-        print("1")
-        for i in self.locate_all(Tiles.BLACK_ONE.image, confidence=0.9, top_left=loc):
-            print(i)
-
-        print("2")
-        for i in self.locate_all(Tiles.BLACK_TWO.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("3")
-        for i in self.locate_all(Tiles.BLACK_THREE.image, confidence=0.95, top_left=loc):
-            print(i)
-        print("4")
-        for i in self.locate_all(Tiles.BLACK_FOUR.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("5")
-        for i in self.locate_all(Tiles.BLACK_FIVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("6")
-        for i in self.locate_all(Tiles.BLACK_SIX.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("7")
-        for i in self.locate_all(Tiles.BLACK_SEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("8")
-        for i in self.locate_all(Tiles.BLACK_EIGHT.image, confidence=0.8, top_left=loc):
-            print(i)
-        print("9")
-        for i in self.locate_all(Tiles.BLACK_NINE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("10")
-        for i in self.locate_all(Tiles.BLACK_TEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("11")
-        for i in self.locate_all(Tiles.BLACK_ELEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("12")
-        for i in self.locate_all(Tiles.BLACK_TWELVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("13")
-        for i in self.locate_all(Tiles.BLACK_THIRTEEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("Joker")
-        for i in self.locate_all(Tiles.BLACK_JOKER.image, confidence=0.5, top_left=loc):
-            print(i)
-            
-        print("Scanning Blue")
-        print("1")
-        for i in self.locate_all(Tiles.BLUE_ONE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("2")
-        for i in self.locate_all(Tiles.BLUE_TWO.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("3")
-        for i in self.locate_all(Tiles.BLUE_THREE.image, confidence=0.95, top_left=loc):
-            print(i)
-        print("4")
-        for i in self.locate_all(Tiles.BLUE_FOUR.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("5")
-        for i in self.locate_all(Tiles.BLUE_FIVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("6")
-        for i in self.locate_all(Tiles.BLUE_SIX.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("7")
-        for i in self.locate_all(Tiles.BLUE_SEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("8")
-        for i in self.locate_all(Tiles.BLUE_EIGHT.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("9")
-        for i in self.locate_all(Tiles.BLUE_NINE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("10")
-        for i in self.locate_all(Tiles.BLUE_TEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("11")
-        for i in self.locate_all(Tiles.BLUE_ELEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("12")
-        for i in self.locate_all(Tiles.BLUE_TWELVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("13")
-        for i in self.locate_all(Tiles.BLUE_THIRTEEN.image, confidence=0.9, top_left=loc):
-            print(i)
-            
-        print("Scanning Red")
-        print("1")
-        for i in self.locate_all(Tiles.RED_ONE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("2")
-        for i in self.locate_all(Tiles.RED_TWO.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("3")
-        for i in self.locate_all(Tiles.RED_THREE.image, confidence=0.95, top_left=loc):
-            print(i)
-        print("4")
-        for i in self.locate_all(Tiles.RED_FOUR.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("5")
-        for i in self.locate_all(Tiles.RED_FIVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("6")
-        for i in self.locate_all(Tiles.RED_SIX.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("7")
-        for i in self.locate_all(Tiles.RED_SEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("8")
-        for i in self.locate_all(Tiles.RED_EIGHT.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("9")
-        for i in self.locate_all(Tiles.RED_NINE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("10")
-        for i in self.locate_all(Tiles.RED_TEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("11")
-        for i in self.locate_all(Tiles.RED_ELEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("12")
-        for i in self.locate_all(Tiles.RED_TWELVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("13")
-        for i in self.locate_all(Tiles.RED_THIRTEEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("Joker")
-        for i in self.locate_all(Tiles.RED_JOKER.image, confidence=0.5, top_left=loc):
-            print(i)
-        
-        
-        print("Scanning Orange")
-        print("1")
-        for i in self.locate_all(Tiles.ORANGE_ONE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("2")
-        for i in self.locate_all(Tiles.ORANGE_TWO.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("3")
-        for i in self.locate_all(Tiles.ORANGE_THREE.image, confidence=0.95, top_left=loc):
-            print(i)
-        print("4")
-        for i in self.locate_all(Tiles.ORANGE_FOUR.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("5")
-        for i in self.locate_all(Tiles.ORANGE_FIVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("6")
-        for i in self.locate_all(Tiles.ORANGE_SIX.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("7")
-        for i in self.locate_all(Tiles.ORANGE_SEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("8")
-        for i in self.locate_all(Tiles.ORANGE_EIGHT.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("9")
-        for i in self.locate_all(Tiles.ORANGE_NINE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("10")
-        for i in self.locate_all(Tiles.ORANGE_TEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("11")
-        for i in self.locate_all(Tiles.ORANGE_ELEVEN.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("12")
-        for i in self.locate_all(Tiles.ORANGE_TWELVE.image, confidence=0.9, top_left=loc):
-            print(i)
-        print("13")
-        for i in self.locate_all(Tiles.ORANGE_THIRTEEN.image, confidence=0.9, top_left=loc):
-            print(i)
+        for k in range(4):
+            #print("Scanning " + str(self.COLORS[k].title()))
+            for j in range(1,14): 
+                #print(j)
+                for i in self.locate_all(Tiles[self.COLORS[k].upper() + "_" + str(j)].image, confidence=0.9, top_left=loc):
+                    storage[j][self.COLORS[k]].append(i)
+            if k == 0 or k == 2:
+                for i in self.locate_all(Tiles[self.COLORS[k].upper() + "_JOKER"].image, confidence=0.5, top_left=loc):
+                    storage["joker"].append(i)
         time_elapsed = datetime.datetime.now() - start_time
         print("Completed in " + str(
             time_elapsed))
 
 #locate_game_window()
 scanner = Scanner()
-scanner.scan_all_tiles()
-#print("Second scan")
 #scanner.scan_all_tiles()
 scanner.is_player_turn()
+scanner.scan_board_tiles()
+scanner.scan_player_tiles()
+#print("Second scan")
+#scanner.scan_all_tiles()
 #print(scanner.locate_board())
 #print(scanner.locate_player())
 #print_mouse_pos()
+print("board tiles")
+print(scanner.board_tiles)
+print("player tiles")
+print(scanner.player_tiles)
 def print_mouse_pos():
     currentMouseX, currentMouseY = pyautogui.position() # Get the XY position of the mouse.
     print(currentMouseX)
