@@ -38,12 +38,12 @@ class Scanner:
         game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         return (game_board_loc.left, game_board_loc.top)
     
-    def click_sort777(self):
+    def locate_sort777(self):
         if not self.game_top_left:
             self.locate_game_window()
         sort_button_loc = pyautogui.locateOnScreen(Tiles.SORT777_BUTTON.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         sort_button_center = pyautogui.center(sort_button_loc)
-        pyautogui.click(sort_button_center.x, sort_button_center.y)
+        return sort_button_center
 
     def is_player_turn(self):
         if not self.game_top_left:
@@ -99,6 +99,20 @@ class Scanner:
         player_y = self.player_top_left[1]
         self.scan_all_tiles(self.board_tiles,loc=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
     
+    def locate_empty_space(self):
+        if not self.game_top_left:
+            self.locate_game_window()
+        if not self.board_top_left:
+            self.board_top_left = self.locate_board()
+        if not self.player_top_left:
+            self.player_top_left = self.locate_player()
+        board_x = self.board_top_left[0]
+        board_y = self.board_top_left[1]
+        player_x = self.player_top_left[0]
+        player_y = self.player_top_left[1]
+        empty_space_loc = pyautogui.locateOnScreen(Tiles.EMPTY_SPACE.image, confidence=0.9, region=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
+        return (pyautogui.center(empty_space_loc.left).x, pyautogui.center(empty_space_loc.top).y)
+
     def scan_player_tiles(self):
         if not self.player_top_left:
             self.player_top_left = self.locate_player()
@@ -109,11 +123,9 @@ class Scanner:
     def scan_all_tiles(self, storage, loc=None):
         #TODO: scan speed optimization scan entire game once and sort/store into board_tiles
         # and player_tiles based on x,y position (instead of scanning individually twice)
-        self.locate_game_window()
         if not loc:
             loc = self.game_top_left
         start_time = datetime.datetime.now()
-        self.click_sort777()
         for k in range(4):
             #print("Scanning " + str(self.COLORS[k].title()))
             for j in range(1,14): 
@@ -127,21 +139,6 @@ class Scanner:
         print("Completed in " + str(
             time_elapsed))
 
-#locate_game_window()
-scanner = Scanner()
-#scanner.scan_all_tiles()
-scanner.is_player_turn()
-scanner.scan_board_tiles()
-scanner.scan_player_tiles()
-#print("Second scan")
-#scanner.scan_all_tiles()
-#print(scanner.locate_board())
-#print(scanner.locate_player())
-#print_mouse_pos()
-print("board tiles")
-print(scanner.board_tiles)
-print("player tiles")
-print(scanner.player_tiles)
 def print_mouse_pos():
     currentMouseX, currentMouseY = pyautogui.position() # Get the XY position of the mouse.
     print(currentMouseX)
