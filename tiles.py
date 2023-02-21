@@ -63,7 +63,7 @@ class Tiles(Enum):
     BOARD_TILE = 503
     TAKE_CARD = 504
     END_TURN = 505
-
+    SORT777_BUTTON = 510
     @property
     def image(self) -> "Image":
         return os.path.abspath('t/' + getattr(Image, self.name).value)
@@ -129,3 +129,4 @@ class Image(Enum):
     BOARD_TILE = "board_tile.png"
     TAKE_CARD = "take_card.png"
     END_TURN = "end_turn.png"
+    SORT777_BUTTON = "sort777.png"

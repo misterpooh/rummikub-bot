@@ -20,6 +20,11 @@ class Scanner:
         self.initialized = False
         self.board_top_left = None
         self.player_top_left = None
+        self.board_tiles = {"joker": []}
+        self.player_tiles = {"joker": []}
+        for i in range(1, 14):
+            self.board_tiles[i] = []
+            self.player_tiles[i] = []
 
     def locate_player(self, height=GAME_HEIGHT, width=GAME_WIDTH):
         if not self.game_top_left:
@@ -32,6 +37,13 @@ class Scanner:
             self.locate_game_window()
         game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         return (game_board_loc.left, game_board_loc.top)
+    
+    def click_sort777(self):
+        if not self.game_top_left:
+            self.locate_game_window()
+        sort_button_loc = pyautogui.locateOnScreen(Tiles.SORT777_BUTTON.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        sort_button_center = pyautogui.center(sort_button_loc)
+        pyautogui.click(sort_button_center.x, sort_button_center.y)
 
     def is_player_turn(self):
         if not self.game_top_left:
@@ -100,11 +112,12 @@ class Scanner:
         return
     
     def scan_all_tiles(self, loc=None):
+        self.locate_game_window()
         if not loc:
             loc = self.game_top_left
         start_time = datetime.datetime.now()
-        self.locate_game_window()
-        tiles = [] # TODO: store all the tiles and positions
+        # TODO: store all the tiles and positions
+        self.click_sort777()
         print("Scanning Black")
         print("1")
         for i in self.locate_all(Tiles.BLACK_ONE.image, confidence=0.9, top_left=loc):
