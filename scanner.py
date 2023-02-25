@@ -4,7 +4,8 @@ import time
 import keyboard
 import random
 import win32api, win32con
-from tiles import Tiles
+from tile import Tile
+from constants import Constants
 import datetime
 
 class Scanner:
@@ -17,7 +18,6 @@ class Scanner:
     def __init__(self):
         self.game_top_left = None
         self.game_top_left = self.locate_game_window() # (x,y)
-        self.initialized = False
         self.board_top_left = None
         self.player_top_left = None
         self.board_tiles = {"joker": []}
@@ -29,28 +29,45 @@ class Scanner:
     def locate_player(self, height=GAME_HEIGHT, width=GAME_WIDTH):
         if not self.game_top_left:
             self.locate_game_window()
-        player_board_loc = pyautogui.locateOnScreen(Tiles.PLAYER_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]))
+        player_board_loc = pyautogui.locateOnScreen(Constants.PLAYER_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]))
         return (player_board_loc.left, player_board_loc.top)
     
     def locate_board(self):
         if not self.game_top_left:
             self.locate_game_window()
-        game_board_loc = pyautogui.locateOnScreen(Tiles.BOARD_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        game_board_loc = pyautogui.locateOnScreen(Constants.BOARD_TILE.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         return (game_board_loc.left, game_board_loc.top)
     
     def locate_sort777(self):
         if not self.game_top_left:
             self.locate_game_window()
-        sort_button_loc = pyautogui.locateOnScreen(Tiles.SORT777_BUTTON.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        sort_button_loc = pyautogui.locateOnScreen(Constants.SORT777_BUTTON.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
         sort_button_center = pyautogui.center(sort_button_loc)
         return sort_button_center
 
-    def is_player_turn(self):
+    def locate_end_turn(self):
         if not self.game_top_left:
             self.locate_game_window()
-        turn_loc = pyautogui.locateOnScreen(Tiles.TURN.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
-        if turn_loc: 
-            cross_button = pyautogui.center(turn_loc)
+        end_button_loc = pyautogui.locateOnScreen(Constants.END_TURN.image, confidence=0.95, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        end_button_center = pyautogui.center(end_button_loc)
+        return end_button_center
+
+    def locate_take_tile(self):
+        if not self.game_top_left:
+            self.locate_game_window()
+        take_tile_loc = pyautogui.locateOnScreen(Constants.TURN.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+        if take_tile_loc:
+            take_tile_center = pyautogui.center(take_tile_loc)
+            return take_tile_center
+        else:
+            take_tile_loc = pyautogui.locateOnScreen(Constants.TURN.image, confidence=0.9, region=tuple([self.game_top_left[0], self.game_top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT]), grayscale=True)
+            take_tile_center = pyautogui.center(take_tile_loc)
+            return take_tile_center
+        
+
+    def is_player_turn(self):
+        cross_button = self.locate_take_tile()
+        if cross_button:
             if pyautogui.pixelMatchesColor(int(cross_button.x), int(cross_button.y), (255, 151, 40)):
                 print("True")
                 return True
@@ -77,13 +94,13 @@ class Scanner:
         #locate game corner
         if self.game_top_left:
             top_left = self.game_top_left
-            corner_img_loc = pyautogui.locateOnScreen(Tiles.GAME_CORNER.image, confidence=0.9, region=tuple([top_left[0]+width-108, top_left[1], 109, 45]), grayscale=True)
+            corner_img_loc = pyautogui.locateOnScreen(Constants.GAME_CORNER.image, confidence=0.9, region=tuple([top_left[0]+width-108, top_left[1], 109, 45]), grayscale=True)
             if not corner_img_loc:
-                corner_img_loc = pyautogui.locateOnScreen(Tiles.GAME_CORNER.image, confidence=0.9, grayscale=True)
+                corner_img_loc = pyautogui.locateOnScreen(Constants.GAME_CORNER.image, confidence=0.9, grayscale=True)
                 top_right = (corner_img_loc.left + corner_img_loc.width , corner_img_loc.top)
                 top_left = (top_right[0] - width, top_right[1])
         else:
-            corner_img_loc = pyautogui.locateOnScreen(Tiles.GAME_CORNER.image, confidence=0.9, grayscale=True)
+            corner_img_loc = pyautogui.locateOnScreen(Constants.GAME_CORNER.image, confidence=0.9, grayscale=True)
             top_right = (corner_img_loc.left + corner_img_loc.width , corner_img_loc.top)
             top_left = (top_right[0] - width, top_right[1])
         self.game_top_left = (top_left[0], top_left[1], self.GAME_WIDTH, self.GAME_HEIGHT)        
@@ -110,7 +127,7 @@ class Scanner:
         board_y = self.board_top_left[1]
         player_x = self.player_top_left[0]
         player_y = self.player_top_left[1]
-        empty_space_loc = pyautogui.locateOnScreen(Tiles.EMPTY_SPACE.image, confidence=0.9, region=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
+        empty_space_loc = pyautogui.locateOnScreen(Constants.EMPTY_SPACE.image, confidence=0.9, region=tuple((board_x, board_y, self.GAME_WIDTH - (self.game_top_left[0] - board_x), player_y - board_y)))
         return (pyautogui.center(empty_space_loc.left).x, pyautogui.center(empty_space_loc.top).y)
 
     def scan_player_tiles(self):
@@ -130,11 +147,13 @@ class Scanner:
             #print("Scanning " + str(self.COLORS[k].title()))
             for j in range(1,14): 
                 #print(j)
-                for i in self.locate_all(Tiles[self.COLORS[k].upper() + "_" + str(j)].image, confidence=0.9, top_left=loc):
-                    storage[j][self.COLORS[k]].append(i)
+                for i in self.locate_all(Constants[self.COLORS[k].upper() + "_" + str(j)].image, confidence=0.9, top_left=loc):
+                    t = pyautogui.center(i)
+                    storage[j][self.COLORS[k]].append(Tile(j, self.COLORS[k], t.x, t.y))
             if k == 0 or k == 2:
-                for i in self.locate_all(Tiles[self.COLORS[k].upper() + "_JOKER"].image, confidence=0.5, top_left=loc):
-                    storage["joker"].append(i)
+                for i in self.locate_all(Constants[self.COLORS[k].upper() + "_JOKER"].image, confidence=0.5, top_left=loc):
+                    t = pyautogui.center(i)
+                    storage["joker"].append(Tile(14, self.COLORS[k], t.x, t.y))
         time_elapsed = datetime.datetime.now() - start_time
         print("Completed in " + str(
             time_elapsed))

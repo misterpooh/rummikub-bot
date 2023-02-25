@@ -4,14 +4,17 @@ import time
 import keyboard
 import random
 import win32api, win32con
-from tiles import Tiles
+from tile import Tile
+from constants import Constants
 import datetime
 from scanner import Scanner
 from interactor import Interactor
 class Strategy:
+    COLORS = ["black", "blue", "red", "orange"]
     def __init__(self):
         self.scanner = Scanner()
         self.interactor = Interactor(self.scanner)
+        self.initialized = False
 
     def run(self):
         while True: # loop until game ends
@@ -21,9 +24,92 @@ class Strategy:
                 self.interactor.click_sort777()
                 self.scanner.scan_player_tiles()
                 self.make_move()
+    
+    def has_tile(self, number, color, board):
+        if board[number][color]:
+            return True
+        return False
+    
+    def grab_tile(self, number, color, board) -> Tile:
+        if self.has_tile(number, color, board):
+            return board[number][color].pop()
+        return None
+    
+    def put_tile(self, t, board):
+        board[int(t.get_number())][str(t.get_color())].append(t)
+    
+    def get_size(self, board):
+        # Returns the total number of tiles on board
+        count = 0
+        for i in range(1, len(board)):
+            for color in self.COLORS:
+                count += len(board[i][color])
+        count += len(board["joker"])
+    
+    def get_size(self, number, color, board):
+        # Returns the total number of given tile on board
+        return len(board[number][color])
+    
+    def initialize(self):
+        total = 0
+        matches = []
+        for number in range(13, 0, -1): # iterate all possible tiles
+            for color in self.COLORS:
+                if self.has_tile(number, color, self.scanner.player_tiles):
+                    # Check for Color Match
+                    color_match = self.grab_color_match(number, color, self.scanner.player_tiles)
+                    if number * len(color_match) >= 30:
+                        self.move_tiles_to_board(color_match)
+                        self.interactor.end_move()
+                        self.initialized = True
+                    elif number * len(color_match) + total >= 30:
+                        #TODO: Move all matches
+                    else:
+                        total += number * len(color_match)
+                        matches.append(color_match)
+                    
+        if not self.initialized:
+            self.interactor.take_tile()
 
-    def make_move(self):
+    def move_match_to_board(self, match):
+        #TODO: find first and drag the entire match to board
         return
+        
+    def move_tiles_to_board(self, tiles):
+        for t in tiles:
+            self.move_tile_to_board(t)                    
+    
+    def move_tile_to_board(self, t):
+        self.move_tile(t, self.scanner.board_top_left[0], self.scanner.board_top_left[1])
+
+    def move_tile(self, t, x, y):
+        self.interactor.move_tile(t.get_x(), t.get_y(), x, y)
+
+    
+    def grab_color_match(self, number, color, board) -> list[Tile]:
+        grab = []
+        for xcolor in self.COLORS:
+            if xcolor != color:
+                if self.has_tile(number, xcolor, self.scanner.player_tiles):
+                    grab.append(self.grab_tile(number, xcolor, board))
+        if len(grab) >= 2: # has a match
+            return grab
+        for t in grab: # put back tiles
+            self.put_tile(t, board)
+        return []
+    
+
+                        
+    def make_move(self):
+        if not self.initialized:
+            self.initialize()
+        #else:
+        #    if self.get_size(self.scanner.player_tiles) > 2:
+        #        for i in range(1,14):
+        #            for color in self.COLORS:
+        #                break
+
+                
 
 
 strategy = Strategy()
