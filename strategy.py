@@ -62,8 +62,9 @@ class Strategy:
                         self.move_tiles_to_board(color_match)
                         self.interactor.end_move()
                         self.initialized = True
-                    elif number * len(color_match) + total >= 30:
-                        #TODO: Move all matches
+                    elif (number * len(color_match)) + total >= 30:
+                        matches.append(color_match)
+                        self.move_matches_to_board(matches)
                     else:
                         total += number * len(color_match)
                         matches.append(color_match)
@@ -71,9 +72,20 @@ class Strategy:
         if not self.initialized:
             self.interactor.take_tile()
 
-    def move_match_to_board(self, match):
-        #TODO: find first and drag the entire match to board
-        return
+    def get_first_tile(self, match):
+        lowest = None
+        for t in match:
+            if not lowest:
+                lowest = t
+            elif t.get_y() <= lowest.get_y() and t.get_x() < lowest.get_x():
+                lowest = t
+        return lowest
+
+    def move_matches_to_board(self, matches):
+        for match in matches:
+            first = self.get_first_tile(match)
+            self.interactor.move_match(first.get_x(), first.get_y(), self.scanner.board_top_left[0], self.scanner.board_top_left[1], len(match))
+        return True
         
     def move_tiles_to_board(self, tiles):
         for t in tiles:
