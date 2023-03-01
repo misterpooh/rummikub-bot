@@ -50,6 +50,14 @@ class Strategy:
         # Returns the total number of given tile on board
         return len(board[number][color])
     
+    def print_matches(self, matches):
+        for match in matches:
+            print("[")
+            for t in match:
+                print(t.get_number())
+                print(t.get_color())
+            print("]")
+    
     def initialize(self):
         total = 0
         matches = []
@@ -57,15 +65,21 @@ class Strategy:
             for color in self.COLORS:
                 if self.has_tile(number, color, self.scanner.player_tiles):
                     # Check for Color Match
-                    color_match = self.grab_color_match(number, color, self.scanner.player_tiles)
+                    color_match = self.grab_color_match(number, self.scanner.player_tiles)
+                    # current number 
                     if number * len(color_match) >= 30:
+                        self.print_matches(matches)
                         self.move_tiles_to_board(color_match)
                         self.interactor.end_move()
                         self.initialized = True
+                    # current + previous numbers
                     elif (number * len(color_match)) + total >= 30:
+                        self.print_matches(matches)
                         matches.append(color_match)
                         self.move_matches_to_board(matches)
-                    else:
+                        self.interactor.end_move()
+                        self.initialized = True
+                    elif len(color_match):
                         total += number * len(color_match)
                         matches.append(color_match)
                     
@@ -98,18 +112,39 @@ class Strategy:
         self.interactor.move_tile(t.get_x(), t.get_y(), x, y)
 
     
-    def grab_color_match(self, number, color, board) -> list[Tile]:
+    def grab_color_match(self, number, board) -> list[Tile]:
         grab = []
         for xcolor in self.COLORS:
-            if xcolor != color:
-                if self.has_tile(number, xcolor, self.scanner.player_tiles):
-                    grab.append(self.grab_tile(number, xcolor, board))
-        if len(grab) >= 2: # has a match
+            if self.has_tile(number, xcolor, self.scanner.player_tiles):
+                grab.append(self.grab_tile(number, xcolor, board))
+        if len(grab) >= 3: # has a match
             return grab
         for t in grab: # put back tiles
             self.put_tile(t, board)
         return []
     
+    def grab_consecutive_match(self, number, color, board) -> list[Tile]:
+        grab = []
+        count = 0
+        if number <= 11:
+            for i in range(number, number+3):
+                if self.has_tile(i, color, board):
+                    grab.append(self.grab_tile(i, color, board))
+            # found match
+            if len(grab) >= 3:
+                # further search
+                if number + 3 <= 11:
+                    i = number +3
+                    while  i < 14:
+                        if self.has_tile(self.grab_tile(i, color, board)):
+                            grab.append(self.grab_tile(i, color, board))
+                            i+=1
+                        else:
+                            i=14
+                return grab
+            for t in grab: # put back tiles
+                self.put_tile(t, board)  
+        return []
 
                         
     def make_move(self):
